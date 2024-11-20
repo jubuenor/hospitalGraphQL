@@ -8,9 +8,12 @@ import org.eclipse.microprofile.graphql.Query;
 import org.globant.domain.entities.MedicalRecord;
 import org.globant.domain.entities.Patient;
 import org.globant.services.PatientServices;
+import org.globant.utils.RegexUtils;
 
 import io.vertx.core.cli.annotations.Description;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * PatientResource
@@ -29,7 +32,7 @@ public class PatientResource {
 
     @Query
     @Description("Get patient by document")
-    public Patient getPatientByDocument(String document) {
+    public Patient getPatientByDocument(@Valid @Pattern(regexp = RegexUtils.DOCUMENT_REGEX) String document) {
         return patientServices.getPatientByDocument(document);
     }
 
@@ -41,25 +44,26 @@ public class PatientResource {
 
     @Mutation
     @Description("Update a patient by document")
-    public void updatePatient(String document, Patient patient) {
+    public void updatePatient(@Valid @Pattern(regexp = RegexUtils.DOCUMENT_REGEX) String document, Patient patient) {
         patientServices.updatePatient(patient);
     }
 
     @Mutation
     @Description("Delete a patient by document")
-    public void deletePatient(String document) {
+    public void deletePatient(@Valid @Pattern(regexp = RegexUtils.DOCUMENT_REGEX) String document) {
         patientServices.deletePatient(document);
     }
 
     @Query
     @Description("Patient exists by document")
-    public boolean patientExists(String document) {
+    public boolean patientExists(@Valid @Pattern(regexp = RegexUtils.DOCUMENT_REGEX) String document) {
         return patientServices.patientExistsByDocument(document);
     }
 
     @Mutation
     @Description("Add a medical record to a patient")
-    public void addMedicalRecord(String document, MedicalRecord medicalRecord) {
+    public void addMedicalRecord(@Valid @Pattern(regexp = RegexUtils.DOCUMENT_REGEX) String document,
+            MedicalRecord medicalRecord) {
         patientServices.addMedicalRecord(document, medicalRecord);
     }
 

@@ -2,6 +2,7 @@ package org.globant.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.globant.domain.entities.MedicalRecord;
 import org.globant.domain.entities.Patient;
@@ -38,8 +39,12 @@ public class PatientServicesImpl implements PatientServices {
 
     @Override
     public Patient getPatientByDocument(String document) {
+        Optional<Patient> patientOptional = patientRepository.getPatientByDocument(document);
+        if (patientOptional.isEmpty()) {
+            throw new NotFoundException(document);
+        }
         log.info("Fetching patient with document: %s", document);
-        return patientRepository.getPatientByDocument(document);
+        return patientOptional.get();
     }
 
     @Override
@@ -58,17 +63,17 @@ public class PatientServicesImpl implements PatientServices {
     @Override
     // @Transactional
     public void updatePatient(Patient patient) {
-        if (!patientExistsByDocument(patient.getDocument())) {
-            throw new NotFoundException(patient.getDocument());
+        String document = patient.getDocument();
+        if (!patientExistsByDocument(document)) {
+            throw new NotFoundException(document);
         }
         patientRepository.update(patient);
-        log.info("Patient updated with document: %s", patient.getDocument());
+        log.info("Patient updated with document: %s", document);
     }
 
     @Override
     // @Transactional
     public void deletePatient(String document) {
-
         if (!patientExistsByDocument(document)) {
             throw new NotFoundException(document);
         }
@@ -85,7 +90,7 @@ public class PatientServicesImpl implements PatientServices {
     // @Transactional
     public void addMedicalRecord(String document, MedicalRecord medicalRecord) {
         Patient patient = getPatientByDocument(document);
-        medicalRecord.setDate(LocalDateTime.now());
+        // medicalRecord.setDate(LocalDateTime.now());
         List<MedicalRecord> medicalRecords = patient.getMedical_history();
         medicalRecords.add(medicalRecord);
         patient.setMedical_history(medicalRecords);
